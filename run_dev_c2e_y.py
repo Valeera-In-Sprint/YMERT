@@ -14,7 +14,7 @@ run = os.system
 
 #execfile("../config.py")
 
-max_ite = 10
+max_ite = 30
 opt_ite = -1
 opt_bleu = 0
 DEV_SRC = "../data/src.sgm"
@@ -52,11 +52,13 @@ def update_weight(lam):
 # formal run
 if __name__ == "__main__":
     assert run("cp init work/init") == 0
+    assert run("cp yinit work/yinit") == 0
+    assert run("cp ../data/weights.txt ../weights.txt") == 0
 
     for ite in xrange(max_ite):
         run("cp ../config.ini work/config.ini.%d" %ite)
         #run("./chiero ../config.py dev")
-        #run("../cubit ../config.ini")
+        run("../cubit ../config.ini")
         run("mv kbest work/o_kbest%d" %(ite))
 
         calc_nbest_BLEU("work/o_kbest%d" %ite, DEV_SRC, DEV_REF)
@@ -67,7 +69,7 @@ if __name__ == "__main__":
 
         if ite == 0:
             run("cp work/o_kbest%d work/_kbest0" %ite)
-            #run("./create_feature work/_kbest0 %s work/_cand0 work/_feat0 1" %(DEV_REF))
+            run("./create_feature work/_kbest0 %s work/_cand0 work/_feat0 1" %(DEV_REF))
         else:
             cmd = "./merge_feature.py --o_kbest work/_kbest%d --o_cand work/_cand%d --o_feat work/_feat%d --c_kbest work/o_kbest%d  --n_kbest work/_kbest%d --n_cand work/_cand%d --n_feat work/_feat%d --ref %s" 
             cmd %= (ite - 1, ite - 1, ite - 1, ite, ite, ite, ite, DEV_REF)
@@ -76,9 +78,9 @@ if __name__ == "__main__":
 
         if ite < max_ite - 1:
             #run("./mert work/init work/_cand%d work/_feat%d work/lambda%d" %(ite, ite, ite))
-            run("./ymert work/yfeat%d work/yinit; echo 'ymert finished'" % ite)
+            run("./ymert work/yfeat%d work/yinit; echo 'ymert finished'; cp lambdas.out work/lambdas%d" % (ite,ite))
             #update_weight("work/lambda%d" %ite)
-            update_weight("lambda.out")
+            update_weight("lambdas.out")
 
     print "MERT is over, optimal (%f, %d)" %(opt_bleu, opt_ite)
         

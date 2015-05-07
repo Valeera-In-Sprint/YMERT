@@ -1,0 +1,6 @@
+Version 1.0:
+
+work well on Chiero, see run_dev_c2e_y.py for detail
+about 1.0 bleu lower than state-of-art
+run about 10x slower than state-of-art
+anyway, a very nice start
